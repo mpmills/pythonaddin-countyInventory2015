@@ -3,11 +3,12 @@ import arcpy.mapping
 import pythonaddins
 import os
 
-tbox_CountyInventory2015 = os.path.dirname(__file__) + r"\tbox_CountyInventory2015.pyt"
 
 g_survey_data = {}
 g_survey_selected = None
 selection_update_count = 0
+
+sde_conn_COUNTY_IMG = "COUNTY_IMG_2015"
 
 class Survey(object):
     def __init__(self, batch_id, name):
@@ -41,11 +42,9 @@ class cls_btnEnableCountyInventoryTools(object):
 
     def onClick(self):
 
-        global tbox_CountyInventory2015
         global g_survey_data
         global g_survey_selected
-
-        # pythonaddins.GPToolDialog(tbox_CountyInventory2015, "GetSelectedSurveyImageLocations")
+        global sde_conn_COUNTY_IMG
 
         # enable combobox and populate with survey name values
         if self.checked:
@@ -59,13 +58,13 @@ class cls_btnEnableCountyInventoryTools(object):
             cbSurveyIdentifier.enabled = True
 
             # now query and populate dropdown for survey data
-            sde_conn_root = r'C:\arcgisserver\Connections'
-            sde_conn_county_inventory_dev = 'COUNTY_IMG_2015_DEV.sde'
-            sde_view_surveys = "COUNTY_IMG_2015_DEV.dbo.v_Current_Batch"
+            sde_conn_root = r'\\hamivarcgis10\scripts\CountyInventory2015'
+            sde_conn_county_inventory = sde_conn_COUNTY_IMG + ".sde"
+            sde_view_surveys = sde_conn_COUNTY_IMG + ".dbo.v_Current_Batch"
 
             view_surveys = os.path.join(
                 sde_conn_root,
-                sde_conn_county_inventory_dev,
+                sde_conn_county_inventory,
                 sde_view_surveys
             )
 
@@ -134,6 +133,9 @@ class cls_cbSurveyIdentifier(object):
     def onSelChange(self, selection):
 
         global selection_update_count
+        global sde_conn_COUNTY_IMG
+        global g_survey_selected
+
         selection_update_count = 0
 
         # check if the layer_survey_image_points layer exists.. if so, delete it and all other layers
@@ -152,8 +154,6 @@ class cls_cbSurveyIdentifier(object):
                     arcpy.mapping.RemoveTableView(df, table_view)
             del mxd
 
-        global g_survey_selected
-
         g_survey_selected = Survey(
             batch_id=getSurveyBatchId(selection),
             name=selection
@@ -162,13 +162,13 @@ class cls_cbSurveyIdentifier(object):
         print "Combobox selection changed.." + selection
 
         # create database connection paths.  connection, dataset?, table/layer
-        sde_conn_root = r'C:\arcgisserver\Connections'
+        sde_conn_root = r'\\hamivarcgis10\scripts\CountyInventory2015'
         sde_conn_route_network = 'NJ_SDE_10.sde'
         sde_route_network_dataset = 'NJ_SDE_10.SDE.Dataset'
         sde_layer_route_network = 'NJ_SDE_10.SDE.NJ_ROADWAY_NETWORK'
 
-        sde_conn_county_inventory_dev = 'COUNTY_IMG_2015_DEV.sde'
-        sde_view_survey_image_points = "COUNTY_IMG_2015_DEV.dbo.v_Current_Virtual_Points"
+        sde_conn_county_inventory = sde_conn_COUNTY_IMG + ".sde"
+        sde_view_survey_image_points = sde_conn_COUNTY_IMG + ".dbo.v_Current_Virtual_Points"
 
         # create link to roads network layer
         layer_roads_network = os.path.join(
@@ -181,7 +181,7 @@ class cls_cbSurveyIdentifier(object):
         # create link to data source view
         view_survey_image_points = os.path.join(
             sde_conn_root,
-            sde_conn_county_inventory_dev,
+            sde_conn_county_inventory,
             sde_view_survey_image_points
         )
 
@@ -248,6 +248,21 @@ class cls_cbSurveyIdentifier(object):
         symbology_image_points = arcpy.mapping.Layer(os.path.join(os.path.dirname(__file__), 'layer_image_points.lyr'))
         arcpy.ApplySymbologyFromLayer_management(map_layer_image_points, symbology_image_points)
 
+        mxd = arcpy.mapping.MapDocument('CURRENT')
+        df = arcpy.mapping.ListDataFrames(mxd, "Layers")[0]
+
+        ext = map_layer_image_points.getExtent()
+        df.extent = ext
+
+        # add roadway network
+        layer_roads = arcpy.mapping.Layer(os.path.join(sde_conn_root, 'NJ_ROADWAY_NETWORK.lyr'))
+        arcpy.mapping.AddLayer(df, layer_roads, "BOTTOM")
+        # arcpy.RefreshTOC()
+
+        del mxd
+        del df
+        del ext
+
         # # add symbology for the centerline data
         # map_layer_routes = arcpy.mapping.Layer("layer_route_sris")
         # symbology_route_sris = arcpy.mapping.Layer(os.path.join(os.path.dirname(__file__), 'layer_route_sris.lyr'))
@@ -306,6 +321,7 @@ class cls_btnMarkAsDoNotTransfer(object):
     def onClick(self):
 
         global selection_update_count
+        global sde_conn_COUNTY_IMG
 
         layer_survey_image_points = "layer_survey_image_points"
 
@@ -356,12 +372,12 @@ class cls_btnMarkAsDoNotTransfer(object):
                 # arcpy.AddMessage("camimnms to be submitted for do_not_transfer" + ",".join(camimnms_selected))
                 print "cam in nums selected: ", camimnms_selected
 
-                sde_conn_root = r'C:\arcgisserver\Connections'
-                sde_conn_county_inventory_dev = 'COUNTY_IMG_2015_DEV.sde'
+                sde_conn_root = r'\\hamivarcgis10\scripts\CountyInventory2015'
+                sde_conn_county_inventory = sde_conn_COUNTY_IMG + ".sde"
 
                 sde_county_inventory = os.path.join(
                     sde_conn_root,
-                    sde_conn_county_inventory_dev
+                    sde_conn_county_inventory
                 )
 
                 sde_sql_conn = arcpy.ArcSDESQLExecute(sde_county_inventory)
@@ -379,7 +395,7 @@ class cls_btnMarkAsDoNotTransfer(object):
                 set @sri='""" + sri_selected + """'
                 set @do_not_transfer=1
 
-                EXECUTE @RC = [COUNTY_IMG_2015_DEV].[dbo].[P_Mark_As_Do_Not_Transfer]
+                EXECUTE @RC = [""" + sde_conn_COUNTY_IMG + """].[dbo].[P_Mark_As_Do_Not_Transfer]
                    @batch_id
                   ,@CamImNms
                   ,@sri
@@ -430,6 +446,8 @@ class cls_btnMarkAsTransfer(object):
 
     def onClick(self):
 
+        global sde_conn_COUNTY_IMG
+
         layer_survey_image_points = "layer_survey_image_points"
         
         # flag to go through with the selection and update
@@ -477,12 +495,12 @@ class cls_btnMarkAsTransfer(object):
                 # arcpy.AddMessage("camimnms to be submitted for do_not_transfer" + ",".join(camimnms_selected))
                 print "cam in nums selected: ", camimnms_selected
 
-                sde_conn_root = r'C:\arcgisserver\Connections'
-                sde_conn_county_inventory_dev = 'COUNTY_IMG_2015_DEV.sde'
+                sde_conn_root = r'\\hamivarcgis10\scripts\CountyInventory2015'
+                sde_conn_county_inventory = sde_conn_COUNTY_IMG + ".sde"
 
                 sde_county_inventory = os.path.join(
                     sde_conn_root,
-                    sde_conn_county_inventory_dev
+                    sde_conn_county_inventory
                 )
 
                 sde_sql_conn = arcpy.ArcSDESQLExecute(sde_county_inventory)
@@ -500,7 +518,7 @@ class cls_btnMarkAsTransfer(object):
                 set @sri='""" + sri_selected + """'
                 set @do_not_transfer=0
 
-                EXECUTE @RC = [COUNTY_IMG_2015_DEV].[dbo].[P_Mark_As_Do_Not_Transfer]
+                EXECUTE @RC = [""" + sde_conn_COUNTY_IMG + """].[dbo].[P_Mark_As_Do_Not_Transfer]
                    @batch_id
                   ,@CamImNms
                   ,@sri

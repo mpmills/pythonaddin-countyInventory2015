@@ -1,2 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<metadata xml:lang="en"><Esri><CreaDate>20160226</CreaDate><CreaTime>08313800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><ModDate>20160226</ModDate><ModTime>083138</ModTime></Esri><toolbox name="Toolbox" alias=""><arcToolboxHelpPath>c:\program files (x86)\arcgis\desktop10.3\Help\gp</arcToolboxHelpPath><toolsets/></toolbox><dataIdInfo><idCitation><resTitle>Toolbox</resTitle></idCitation></dataIdInfo><distInfo><distributor><distorFormat><formatName>ArcToolbox Toolbox</formatName></distorFormat></distributor></distInfo></metadata>
+<metadata xml:lang="en">
+	<Esri>
+		<CreaDate>20160226</CreaDate>
+		<CreaTime>08313800</CreaTime>
+		<ArcGISFormat>1.0</ArcGISFormat>
+		<SyncOnce>TRUE</SyncOnce>
+		<ModDate>20160226</ModDate>
+		<ModTime>084256</ModTime>
+	</Esri>
+	<toolbox name="tbox_CountyInventory2015" alias="Get Selected Survey Image Locations">
+		<arcToolboxHelpPath>c:\program files (x86)\arcgis\desktop10.3\Help\gp</arcToolboxHelpPath>
+		<toolsets/>
+	</toolbox>
+	<dataIdInfo>
+		<idCitation>
+			<resTitle>tbox_CountyInventory2015</resTitle>
+		</idCitation>
+	</dataIdInfo>
+	<distInfo>
+		<distributor>
+			<distorFormat>
+				<formatName>ArcToolbox Toolbox</formatName>
+			</distorFormat>
+		</distributor>
+	</distInfo>
+</metadata>

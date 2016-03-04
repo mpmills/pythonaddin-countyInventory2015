@@ -5,23 +5,26 @@ class Toolbox(object):
     def __init__(self):
         """Define the toolbox (the name of the toolbox is the name of the
         .pyt file)."""
-        self.label = "Toolbox"
-        self.alias = ""
+        self.label = "GetSelectedSurveyImageLocations"
+        self.alias = "Get Selected Survey Image Locations"
 
         # List of tool classes associated with this toolbox
-        self.tools = [Tool]
+        self.tools = [GetSelectedSurveyImageLocations]
 
 
-class Tool(object):
+class GetSelectedSurveyImageLocations(object):
     def __init__(self):
         """Define the tool (tool name is the name of the class)."""
-        self.label = "Tool"
+        self.label = "GetSelectedSurveyImageLocations"
         self.description = ""
         self.canRunInBackground = False
 
     def getParameterInfo(self):
         """Define parameter definitions"""
+
         params = None
+
+
         return params
 
     def isLicensed(self):
@@ -32,6 +35,8 @@ class Tool(object):
         """Modify the values and properties of parameters before internal
         validation is performed.  This method is called whenever a parameter
         has been changed."""
+
+
         return
 
     def updateMessages(self, parameters):
