@@ -22,16 +22,6 @@ def getSurveyBatchId(survey_name):
     return [batch_id for batch_id, name in g_survey_data.items() if name == survey_name][0]
 
 
-# might need to use the extention to track events.. but we're doing this outside of an edit session, so it might not be necessary
-class ExtensionClass6(object):
-    """Implementation for CountyInventory2015_addin.extension7 (Extension)"""
-    def __init__(self):
-        # For performance considerations, please remove all unused methods in this class.
-        # todo: add onstartup method to update the dropdown?.. when extension is on
-
-        self.enabled = True
-
-
 class cls_btnEnableCountyInventoryTools(object):
 
     """Implementation for CountyInventory2015_addin.cls_btnEnableCountyInventoryTools (Button)"""
@@ -100,6 +90,10 @@ class cls_btnEnableCountyInventoryTools(object):
             del ary_surveys
 
             cbSurveyIdentifier.items = cmb_items
+
+            mxd = arcpy.mapping.MapDocument("CURRENT")
+            mxd.activeDataFrame.spatialReference = 4326
+            print "Data Frame Spatial Reference set to WGS84 (4326)"
 
         pass
 
@@ -245,7 +239,7 @@ class cls_cbSurveyIdentifier(object):
 
         # add symbology for the image point layer
         map_layer_image_points = arcpy.mapping.Layer("layer_survey_image_points")
-        symbology_image_points = arcpy.mapping.Layer(os.path.join(os.path.dirname(__file__), 'layer_image_points.lyr'))
+        symbology_image_points = arcpy.mapping.Layer(os.path.join(sde_conn_root, 'layer_image_points.lyr'))
         arcpy.ApplySymbologyFromLayer_management(map_layer_image_points, symbology_image_points)
 
         mxd = arcpy.mapping.MapDocument('CURRENT')
@@ -297,20 +291,6 @@ class cls_btnLoadSurvey(object):
 
     def onClick(self):
         pass
-
-class cls_btnImageLocationSelectionActivate(object):
-    """Implementation for CountyInventory2015_addin.btnImageLocationSelectionActivate (Button)"""
-
-    def __init__(self):
-        self.enabled = False
-        self.checked = False
-
-    def onClick(self):
-
-        arcpy.AddMessage("County Inventory Selection Enabled")
-
-        btnMarkAsDoNotTransfer.enabled = True
-
 
 class cls_btnMarkAsDoNotTransfer(object):
     """Implementation for CountyInventory2015_addin.btnMarkImageLocationsAsDoNotTransfer (Button)"""
@@ -430,12 +410,13 @@ class cls_btnMarkAsDoNotTransfer(object):
                     # now update the symbology since there are Do Not Transfer Records
 
                     map_layer_image_points = arcpy.mapping.Layer(layer_survey_image_points)
-                    symbology_image_points = arcpy.mapping.Layer(os.path.join(os.path.dirname(__file__), 'layer_image_points.lyr'))
+                    symbology_image_points = arcpy.mapping.Layer(os.path.join(sde_conn_root, 'layer_image_points.lyr'))
                     # arcpy.ApplySymbologyFromLayer_management(map_layer_image_points, symbology_image_points)
                     mxd = arcpy.mapping.MapDocument("CURRENT")
                     df = arcpy.mapping.ListDataFrames(mxd, "Layers")[0]
                     arcpy.mapping.UpdateLayer(df, map_layer_image_points, symbology_image_points, "TRUE")
                     arcpy.RefreshTOC()
+                    arcpy.RefreshActiveView()
 
 
 class cls_btnMarkAsTransfer(object):

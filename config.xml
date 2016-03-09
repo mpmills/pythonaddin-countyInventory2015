@@ -2,7 +2,7 @@
     <Name>County Inventory 2015 Workflow</Name>
     <AddInID>{409d6bba-c354-4580-a1f8-faac26316418}</AddInID>
     <Description>County Inventory 2015 Workflow Processing</Description>
-    <Version>0.1</Version>
+    <Version>0.2</Version>
     <Image />
     <Author>Michael Mills</Author>
     <Company>Michael Baker International</Company>
@@ -72,16 +72,6 @@
                     <Help heading="" />
                 </Button>
             </Commands>
-            <!--<Extensions>-->
-                <!--<Extension autoLoad="true"-->
-                           <!--category="County Inventory 2015 Workflow"-->
-                           <!--class="ExtensionClass6"-->
-                           <!--description=""-->
-                           <!--id="CountyInventory2015_addin.extension_ci"-->
-                           <!--name="New Extension"-->
-                           <!--productName="New Extension"-->
-                           <!--showInExtensionDialog="true" />-->
-            <!--</Extensions>-->
             <Toolbars>
                 <Toolbar caption="County Inventory 2015"
                          category="County Inventory 2015 Workflow"
